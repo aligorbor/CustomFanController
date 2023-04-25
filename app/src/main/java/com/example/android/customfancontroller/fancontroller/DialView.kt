@@ -1,4 +1,4 @@
-package com.example.android.customfancontroller
+package com.example.android.customfancontroller.fancontroller
 
 import android.content.Context
 import android.graphics.*
@@ -9,6 +9,7 @@ import androidx.core.content.withStyledAttributes
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
+import com.example.android.customfancontroller.R
 import kotlin.math.*
 
 private enum class FanSpeed(val label: Int) {
@@ -65,7 +66,7 @@ class DialView @JvmOverloads constructor(
                 super.onInitializeAccessibilityNodeInfo(host, info)
                 val customClick = AccessibilityNodeInfoCompat.AccessibilityActionCompat(
                     AccessibilityNodeInfo.ACTION_CLICK,
-                    context.getString(if (fanSpeed !=  FanSpeed.HIGH) R.string.change else R.string.reset)
+                    context.getString(if (fanSpeed != FanSpeed.HIGH) R.string.change else R.string.reset)
                 )
                 info.addAction(customClick)
             }
@@ -101,7 +102,7 @@ class DialView @JvmOverloads constructor(
             FanSpeed.OFF -> Color.GRAY
             FanSpeed.LOW -> fanSpeedLowColor
             FanSpeed.MEDIUM -> fanSpeedMediumColor
-            FanSpeed.HIGH  -> fanSpeedMaxColor
+            FanSpeed.HIGH -> fanSpeedMaxColor
         }
         // Draw the dial.
         canvas.drawCircle((width / 2).toFloat(), (height / 2).toFloat(), radius, paint)
