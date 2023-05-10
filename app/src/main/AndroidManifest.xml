@@ -13,10 +13,13 @@
         android:theme="@style/Theme.MiniPaint"
         tools:targetApi="31">
         <activity
+            android:name=".minipaint.MiniPaintActivity"
+            android:exported="false" />
+        <activity
             android:name=".fancontroller.FanControllerActivity"
             android:exported="false" />
         <activity
-            android:name=".minipaint.MiniPaintActivity"
+            android:name=".clipping.ClippingActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
