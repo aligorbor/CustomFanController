@@ -13,6 +13,9 @@
         android:theme="@style/Theme.MiniPaint"
         tools:targetApi="31">
         <activity
+            android:name=".spotlight.SpotLightActivity"
+            android:exported="false" />
+        <activity
             android:name=".clipping.ClippingActivity"
             android:exported="false" />
         <activity
@@ -22,7 +25,7 @@
             android:name=".fancontroller.FanControllerActivity"
             android:exported="false" />
         <activity
-            android:name=".spotlight.SpotLightActivity"
+            android:name=".followpatch.FollowPathActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

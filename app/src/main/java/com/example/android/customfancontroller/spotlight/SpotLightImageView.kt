@@ -21,7 +21,7 @@ class SpotLightImageView @JvmOverloads constructor(
 
     private lateinit var screenRect: RectF
 
-    private val bitmapTarget = BitmapFactory.decodeResource(resources, R.drawable.android)
+    private val bitmapTarget = BitmapFactory.decodeResource(resources, R.drawable.car)
     private val spotlight = BitmapFactory.decodeResource(resources, R.drawable.mask)
 
     private var targetCurX = 0f
@@ -62,7 +62,7 @@ class SpotLightImageView @JvmOverloads constructor(
 
         shader = BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
         paint.shader = shader
-  //      paint.alpha = 100    //for testing
+    //    paint.alpha = 100    //for testing
 
     }
 
@@ -194,7 +194,8 @@ class SpotLightImageView @JvmOverloads constructor(
     }
 
     private fun isGameOver(x: Float, y: Float) =
-        (x > targetCurX + bitmapTarget.width / 4 && x < targetCurX + bitmapTarget.width / 4 * 3 && y > targetCurY + bitmapTarget.height / 4 && y < targetCurY + bitmapTarget.height / 4 * 3)
+   //     (x > targetCurX + bitmapTarget.width / 4 && x < targetCurX + bitmapTarget.width / 4 * 3 && y > targetCurY + bitmapTarget.height / 4 && y < targetCurY + bitmapTarget.height / 4 * 3)
+        (x > targetCurX && x < targetCurX + bitmapTarget.width  && y > targetCurY  && y < targetCurY + bitmapTarget.height)
 
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
