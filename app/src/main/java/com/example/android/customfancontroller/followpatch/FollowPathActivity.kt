@@ -1,8 +1,10 @@
 package com.example.android.customfancontroller.followpatch
 
 import android.os.Bundle
+import android.view.View
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.android.customfancontroller.R
 
@@ -33,6 +35,12 @@ class FollowPathActivity : AppCompatActivity() {
         speedBar = findViewById(R.id.speedbar)
         speedBar.setOnSeekBarChangeListener(speedBarOnSeekBarChangeListener)
         followPatchView.setSpeed(speedBar.getProgress()) //set default speed
+
+        val textDispInfo = findViewById<View>(R.id.dispinfo) as TextView
+        //get display dpi
+        val metrics = resources.displayMetrics
+        textDispInfo.text = "xdpi = ${metrics.xdpi}\nydpi = ${metrics.ydpi}"
+
     }
 
 

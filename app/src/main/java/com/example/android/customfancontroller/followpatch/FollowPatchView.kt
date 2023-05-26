@@ -17,6 +17,7 @@ class FollowPatchView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     var paint: Paint = Paint()
+    var paintText: Paint = Paint()
 
     var bm: Bitmap
     var bm_offsetX = 0
@@ -43,10 +44,11 @@ class FollowPatchView @JvmOverloads constructor(
     private var matrix: Matrix = Matrix()
 
     var touchPath: Path = Path()
+    var lastTime: Long = System.currentTimeMillis()
 
     init {
         paint.color = Color.BLUE
-        paint.strokeWidth = 1f
+        paint.strokeWidth = 2f
         paint.style = Paint.Style.STROKE
 
         bm = BitmapFactory.decodeResource(resources, R.drawable.car)
@@ -55,6 +57,11 @@ class FollowPatchView @JvmOverloads constructor(
 
         step = 1f //default
         stepAngle = 3f //default
+
+        paintText.setColor(Color.RED)
+        paintText.setStrokeWidth(1F)
+        paintText.setStyle(Paint.Style.FILL)
+        paintText.setTextSize(26F)
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -62,6 +69,9 @@ class FollowPatchView @JvmOverloads constructor(
         if (animPath.isEmpty()) {
             return
         }
+
+        val startNanos = System.nanoTime()
+        val startMillis = System.currentTimeMillis()
 
         canvas?.drawPath(animPath, paint)
 
@@ -114,6 +124,19 @@ class FollowPatchView @JvmOverloads constructor(
             }
         }
 
+        val endNanos = System.nanoTime()
+        val betweenFrame: Long = startMillis - lastTime
+        val fps = (1000 / betweenFrame).toInt()
+
+        val strProcessingTime = "Processing Time (ms) (ns=0.000001ms) = " + (endNanos - startNanos)/1000000f
+        val strBetweenFrame = "Between Frame (ms) = $betweenFrame"
+        val strFPS = "Frame Per Second (approximate) = $fps"
+
+        lastTime = startMillis
+        canvas?.drawText(strProcessingTime, 10F, 30F, paintText)
+        canvas?.drawText(strBetweenFrame, 10F, 60F, paintText)
+        canvas?.drawText(strFPS, 10F, 90F, paintText)
+        canvas?.drawText(pathLength.toString(), 10F, 120F, paintText)
 
     }
 
