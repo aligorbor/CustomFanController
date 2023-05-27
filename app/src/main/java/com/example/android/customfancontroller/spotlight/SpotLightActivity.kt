@@ -17,7 +17,7 @@ class SpotLightActivity : AppCompatActivity() {
 
     private fun createInstructionsDialog(): Dialog {
         val builder = AlertDialog.Builder(this)
-        builder.setIcon(R.drawable.android)
+        builder.setIcon(R.drawable.car)
             .setTitle(R.string.instructions_title)
             .setMessage(R.string.instructions)
             .setPositiveButtonIcon(ContextCompat.getDrawable(this, android.R.drawable.ic_media_play))

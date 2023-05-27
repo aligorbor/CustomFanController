@@ -6,10 +6,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import androidx.appcompat.widget.AppCompatImageView
 import com.example.android.customfancontroller.R
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.floor
-import kotlin.math.sin
+import kotlin.math.*
 import kotlin.random.Random
 
 class SpotLightImageView @JvmOverloads constructor(
@@ -62,7 +59,7 @@ class SpotLightImageView @JvmOverloads constructor(
 
         shader = BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
         paint.shader = shader
-    //    paint.alpha = 100    //for testing
+   //     paint.alpha = 100    //for testing
 
     }
 
@@ -84,37 +81,37 @@ class SpotLightImageView @JvmOverloads constructor(
         canvas?.drawColor(Color.WHITE)
 
         targetMatrix.reset()
-        if ((targetNewAngle - targetCurAngle) > targetStepAngle) {
-            targetCurAngle += targetStepAngle
+        val delt = abs(targetNewAngle - targetCurAngle)
+        if (delt > targetStepAngle) {
+            if (targetNewAngle > targetCurAngle) {
+                if (delt <= 180) targetCurAngle += targetStepAngle else targetCurAngle -= targetStepAngle
+            } else {
+                if (delt <= 180) targetCurAngle -= targetStepAngle else targetCurAngle += targetStepAngle
+            }
+            targetCurAngle = targetCurAngle % 360
+
             targetMatrix.postRotate(targetCurAngle, targetOffsetX, targetOffsetY)
             targetMatrix.postTranslate(targetCurX, targetCurY)
             canvas?.drawBitmap(bitmapTarget, targetMatrix, paint)
             invalidate()
-        } else
-            if ((targetCurAngle - targetNewAngle) > targetStepAngle) {
-                targetCurAngle -= targetStepAngle
-                targetMatrix.postRotate(targetCurAngle, targetOffsetX, targetOffsetY)
+        } else {
+            targetCurAngle = targetNewAngle
+            targetMatrix.postRotate(targetCurAngle, targetOffsetX, targetOffsetY)
+
+            targetCurX += targetStepX
+            targetCurY += targetStepY
+            if (!correctTargetNewAngle()) {
                 targetMatrix.postTranslate(targetCurX, targetCurY)
                 canvas?.drawBitmap(bitmapTarget, targetMatrix, paint)
-                invalidate()
-            } else {
-                targetCurAngle = targetNewAngle
-                targetMatrix.postRotate(targetCurAngle, targetOffsetX, targetOffsetY)
-
-                targetCurX += targetStepX
-                targetCurY += targetStepY
-                if (!correctTargetNewAngle()) {
-                    targetMatrix.postTranslate(targetCurX, targetCurY)
-                    canvas?.drawBitmap(bitmapTarget, targetMatrix, paint)
-                }
-                invalidate()
             }
+            invalidate()
+        }
 
         if (!gameOver) {
             if (shouldDrawSpotLight) {
                 canvas?.drawRect(0.0f, 0.0f, width.toFloat(), height.toFloat(), paint)
             } else {
-                   canvas?.drawColor(Color.BLACK)
+                             canvas?.drawColor(Color.BLACK)  //comment for testing
             }
         }
     }
@@ -124,38 +121,34 @@ class SpotLightImageView @JvmOverloads constructor(
             || targetCurY < screenRect.top || targetCurY + bitmapTarget.height > screenRect.bottom
         ) {
             when {
-                targetCurX < screenRect.left && targetCurAngle < 0 -> {
-                    targetNewAngleRad += Math.PI.toFloat() / 2f
+                (targetCurX < screenRect.left || targetCurX + bitmapTarget.width > screenRect.right) && targetCurAngle < 0 -> {
+                    targetNewAngleRad = -Math.PI.toFloat() - targetNewAngleRad
                 }
-                targetCurX < screenRect.left && targetCurAngle >= 0 -> {
-                    targetNewAngleRad -= Math.PI.toFloat() / 2f
-
-                }
-                targetCurX + bitmapTarget.width > screenRect.right && targetCurAngle < 0 -> {
-                    targetNewAngleRad -= Math.PI.toFloat() / 2f
-                }
-                targetCurX + bitmapTarget.width > screenRect.right && targetCurAngle >= 0 -> {
-                    targetNewAngleRad += Math.PI.toFloat() / 2f
+                (targetCurX < screenRect.left || targetCurX + bitmapTarget.width > screenRect.right) && targetCurAngle >= 0 -> {
+                    targetNewAngleRad = Math.PI.toFloat() - targetNewAngleRad
                 }
 
-
-                targetCurY < screenRect.top && targetCurAngle < -Math.PI.toFloat() / 2f -> {
+                targetCurY < screenRect.top || targetCurY + bitmapTarget.height > screenRect.bottom -> {
                     targetNewAngleRad = -targetNewAngleRad
-                }
-                targetCurY < screenRect.top && targetCurAngle >= -Math.PI.toFloat() / 2f -> {
-                    targetNewAngleRad = Math.PI.toFloat() / 2f + targetNewAngleRad
-                }
-                targetCurY + bitmapTarget.height > screenRect.bottom && targetCurAngle > Math.PI.toFloat() / 2f -> {
-                    targetNewAngleRad = -targetNewAngleRad
-                }
-                targetCurY + bitmapTarget.height > screenRect.bottom && targetCurAngle <= Math.PI.toFloat() / 2f -> {
-                    targetNewAngleRad = -Math.PI.toFloat() / 2f - targetNewAngleRad
                 }
             }
 
             targetCurX -= targetStepX
             targetCurY -= targetStepY
             targetNewAngle = targetNewAngleRad * 180.0f / Math.PI.toFloat()
+
+            if (targetCurAngle >= 0) {
+                if (targetNewAngle <= 0 && targetCurAngle - targetNewAngle >= 180) {
+                    targetNewAngle += 360
+                }
+            } else {
+                if (targetNewAngle >= 0 && targetNewAngle - targetCurAngle >= 180) {
+                    targetNewAngle -= 360
+                }
+            }
+            targetNewAngle = targetNewAngle % 360
+            targetNewAngleRad = targetNewAngle * Math.PI.toFloat() / 180.0f
+
             targetStepX = (targetStep * cos(targetNewAngleRad.toDouble())).toFloat()
             targetStepY = (targetStep * sin(targetNewAngleRad.toDouble())).toFloat()
             true
@@ -169,15 +162,29 @@ class SpotLightImageView @JvmOverloads constructor(
     }
 
     private fun calcTargetNewAngle(event: MotionEvent) {
-        val offst=60
-        if (!(targetCurX < screenRect.left+offst || targetCurX + bitmapTarget.width > screenRect.right-offst
-            || targetCurY < screenRect.top+offst || targetCurY + bitmapTarget.height > screenRect.bottom-offst
-                    )) {
+        val offst = 60
+        if (!(targetCurX < screenRect.left + offst || targetCurX + bitmapTarget.width > screenRect.right - offst
+                    || targetCurY < screenRect.top + offst || targetCurY + bitmapTarget.height > screenRect.bottom - offst
+                    )
+        ) {
             val catetX = targetCurX + targetOffsetX - event.x
             val catetY = targetCurY + targetOffsetY - event.y
             targetNewAngleRad = atan2(catetY.toDouble(), catetX.toDouble()).toFloat()
             targetNewAngle = targetNewAngleRad * 180.0f / Math.PI.toFloat()
-            targetNewAngle += (targetStepAngle *2)
+            targetNewAngle += (targetStepAngle * 2)
+
+            if (targetCurAngle >= 0) {
+                if (targetNewAngle <= 0 && targetCurAngle - targetNewAngle >= 180) {
+                    targetNewAngle += 360
+                }
+            } else {
+                if (targetNewAngle >= 0 && targetNewAngle - targetCurAngle >= 180) {
+                    targetNewAngle -= 360
+                }
+            }
+            targetNewAngle = targetNewAngle % 360
+
+
             targetNewAngleRad = targetNewAngle / 180.0f * Math.PI.toFloat()
             targetStepX = (targetStep * cos(targetNewAngleRad.toDouble())).toFloat()
             targetStepY = (targetStep * sin(targetNewAngleRad.toDouble())).toFloat()
@@ -194,8 +201,8 @@ class SpotLightImageView @JvmOverloads constructor(
     }
 
     private fun isGameOver(x: Float, y: Float) =
-   //     (x > targetCurX + bitmapTarget.width / 4 && x < targetCurX + bitmapTarget.width / 4 * 3 && y > targetCurY + bitmapTarget.height / 4 && y < targetCurY + bitmapTarget.height / 4 * 3)
-        (x > targetCurX && x < targetCurX + bitmapTarget.width  && y > targetCurY  && y < targetCurY + bitmapTarget.height)
+        //     (x > targetCurX + bitmapTarget.width / 4 && x < targetCurX + bitmapTarget.width / 4 * 3 && y > targetCurY + bitmapTarget.height / 4 && y < targetCurY + bitmapTarget.height / 4 * 3)
+        (x > targetCurX && x < targetCurX + bitmapTarget.width && y > targetCurY && y < targetCurY + bitmapTarget.height)
 
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
